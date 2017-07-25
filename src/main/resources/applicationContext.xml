@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<context:component-scan base-package="com.interpark.hong.biz"></context:component-scan>
+	
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+
+	<!-- dataSource -->
+	<context:property-placeholder location="classpath:config/database.properties" />
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+	
+	<!-- spring JDBC -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- transaction -->
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true" />
+			<tx:method name="*" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<aop:config>
+		<aop:pointcut id="txPointcut" expression="execution(* com.interpark.hong.biz..*(..))" />
+		<aop:advisor pointcut-ref="txPointcut" advice-ref="txAdvice" />
+	</aop:config>
+	
+	<!-- <bean id="dataSource" class="org.apache.commons.dbcp.datasources" destroy-method="close">
+		<property name="dirverClassName" ></property>
+	</bean> -->
+	
+	<!-- <context:property-placeholder location="classpath:config/database.properties" />
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean> -->
+	
+	<!-- <context:component-scan base-package="polymorphism"></context:component-scan> -->
+	<!-- <bean id="dataSource" class="org.apache.com"></bean> -->
+	<!-- <bean id="tv" class="polymorphism.LgTV"></bean> -->
+	<!-- <bean id="sony" class="polymorphism.SonySpeaker"></bean> -->
+	<!-- <bean id="apple" class="polymorphism.AppleSpeaker"></bean> -->
+
+
+	<!-- <bean id="tv" class="polymorphism.SamTV" p:speaker-ref="sony" p:price="500" 
+		init-method="initSamTv" destroy-method="destroySamTv" scope="singleton"> 
+		<constructor-arg index="0" ref="apple"></constructor-arg> <constructor-arg 
+		index="1" value="500"></constructor-arg> <property name="speaker" ref="apple"></property> 
+		<property name="price" value="500"></property> </bean> <bean id="sony" class="polymorphism.SonySpeaker"></bean> 
+		<bean id="apple" class="polymorphism.AppleSpeaker"></bean> -->
+	<!-- <bean id="collectionBean" class="com.springbook.ioc.injection.CollectionBean"> 
+		<property name="addressList"> <list> <value>address1</value> <value>address2</value> 
+		</list> </property> </bean> -->
+	
+	
+</beans>
